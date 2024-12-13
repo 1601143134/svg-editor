@@ -110,7 +110,6 @@ import originOperate from './utils/operate-point'
 import { ref,reactive,onMounted,computed,watch } from "vue"
 import { useElementBounding,useMagicKeys,onKeyDown } from '@vueuse/core'
 import node from './component/node.vue'
-import circle from './component/circle.vue'
 import { v4 as uuidv4 } from 'uuid'
 import { 
   lineAngle,
