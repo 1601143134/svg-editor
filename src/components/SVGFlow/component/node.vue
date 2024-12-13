@@ -37,7 +37,6 @@
 <script setup lang="ts">
 import { ref,reactive,onMounted,computed,watch } from "vue"
 interface Rect {
-  id: string;
   x: number;
   y: number;
   width: number;
@@ -48,11 +47,10 @@ interface Rect {
   cx: number;
   cy: number;
   r: number;
-  type: number;
+  stroke: string;
+  strokeWidth: number;
   rotate: number;
-  transform: string;
   points?: string;
-  origin?: Object;
   translate?: {x: number, y: number};
 }
 
@@ -69,7 +67,7 @@ let translate = computed(() => {
   if(props.type == 1 || props.type == 3) {
     return `translate(${props.rect.x},${props.rect.y})`
   }else{
-    return `translate(${props.rect.translate.x},${props.rect.translate.y})`
+    return `translate(${props.rect.translate?.x},${props.rect.translate?.y})`
   }
 })
 
