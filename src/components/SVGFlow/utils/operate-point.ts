@@ -2,7 +2,8 @@ export default [
   {
     name: "top",
     position: { x: 50, y: 0 },
-    angle: -90
+    angle: -90,
+    offset: { x: 0, y: -20 }
   },
   {
     name: "top-right",
@@ -12,7 +13,8 @@ export default [
   {
     name: "right",
     position: { x: 100, y: 50 },
-    angle: 0
+    angle: 0,
+    offset: { x: 20, y: 20 }
   },
   {
     name: "right-bottom",
@@ -22,7 +24,8 @@ export default [
   {
     name: "bottom",
     position: { x: 50, y: 100 },
-    angle: 90
+    angle: 90,
+    offset: { x: 0, y: 20 }
   },
   {
     name: "bottom-left",
@@ -32,7 +35,8 @@ export default [
   {
     name: "left",
     position: { x: 0, y: 50 },
-    angle: 180
+    angle: 180,
+    offset: { x: -20, y: 0 }
   },
   {
     name: "left-top",

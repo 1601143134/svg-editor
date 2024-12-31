@@ -1,3 +1,5 @@
+import { start } from "repl";
+
 // 点
 export interface Point {
   x: number;
@@ -759,6 +761,25 @@ function calculateRotatedVertices(cx, cy, w, h, angle) {
   });
 }
 
+/**
+ * 求矩形的四个顶点
+ * 
+ * @param x1 
+ * @param y1 
+ * @param width 
+ * @param height 
+ * @returns 
+ */
+export function getRectangleVertices (start, width, height) {
+  const { x: x1, y: y1 } = start
+  return [
+    { x: x1, y: y1 },
+    { x: x1 + width, y: y1 },
+    { x: x1 + width, y: y1 + height },
+    { x: x1, y: y1 + height }
+  ];
+}
+
 // 计算同端点两条线段间的夹角
 function calculateAngle(C, A, D) {
   // 向量 CA 和 CD
@@ -780,4 +801,212 @@ function calculateAngle(C, A, D) {
   const angleInDegrees = (angleInRadians * 180) / Math.PI;
 
   return angleInDegrees;
+}
+
+/**
+ * 求相对于某一点偏转的角度，360°为一周
+ * 
+ * @param pt 
+ * @param center 
+ */
+export function getRotateAngle(pt, center): number {
+  // let radian = Math.atan2(pt.x - center.x, pt.y - center.y)
+  let radian = Math.atan2(pt.y - center.y,pt.x - center.x)
+  // 弧度转角度
+  let angle = radian * 180 / Math.PI;
+  angle = (angle + 360) % 360;
+  return angle
+}
+
+
+/**
+ * 点作射线是否与线段相交
+ * 
+ * @param px 
+ * @param py 
+ * @param p1x 
+ * @param p1y 
+ * @param p2x 
+ * @param p2y 
+ * @returns 
+ */
+function isisIntersect(
+  px: number,
+  py: number,
+  p1x: number,
+  p1y: number,
+  p2x: number,
+  p2y: number
+) {
+  // 线段在射线上方
+  if (p1y > py && p2y > py) {
+    return false
+  }
+
+  // 线段在射线下方
+  if (p1y < py && p2y < py) {
+    return false
+  }
+
+  // 线段的两个端点都在待检测点的左边
+  if (p1x < px && p2x < px) {
+    return false
+  }
+
+  // 线段的2个端点都在待检测点的右边
+  if (p1x > px && p2x > px) {
+    return true
+  }
+
+  const p2o = p1y - p2y
+  const p1o = p2x - p1x
+  const p2q = py - p2y
+
+  const x = p2x - (p1o / p2o) * p2q
+  if (x > px) {
+    return true
+  } else {
+    return false
+  }
+}
+
+/**
+ * 
+ */
+export function isOutsideRoundedCircle(p,rect) {
+  const { x, y, rx: radius, width, height } = rect
+  const con1 =
+    p.x > x &&
+    p.x < x + width &&
+    p.y > y &&
+    p.y < y + height
+  if (!con1) {
+    return false
+  }
+
+  // 判断左上角
+  const c1x = x + radius
+  const c1y = y + radius
+  if (p.x < c1x && p.y < c1y) {
+    if (
+      (p.x - c1x) * (p.x - c1x) + (p.y - c1y) * (p.y - c1y) <
+      radius * radius
+    ) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  // 判断左下角
+  const c2x = x + radius
+  const c2y = y + height - radius
+  if (p.x < c2x && p.y > c2y) {
+    if (
+      (p.x - c2x) * (p.x - c2x) + (p.y - c2y) * (p.y - c2y) <
+      radius * radius
+    ) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  // 判断右上角
+  const c3x = x + width - radius
+  const c3y = y + radius
+  if (p.x > c3x && p.y < c3y) {
+    if (
+      (p.x - c3x) * (p.x - c3x) + (p.y - c3y) * (p.y - c3y) <
+      radius * radius
+    ) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  // 判断右下角
+  const c4x = x + width - radius
+  const c4y = y + height - radius
+  if (p.x > c4x && p.y < c4y) {
+    if (
+      (p.x - c4x) * (p.x - c4x) + (p.y - c4y) * (p.y - c4y) <
+      radius * radius
+    ) {
+      return true
+    } else {
+      return false
+    }
+  }
+  return true
+}
+
+/**
+ * 返回点与圆的垂直交点
+ * 
+ * @param p 
+ * @param h 
+ * @param k 
+ * @param r 
+ * @returns 
+ */
+export function circleVerticalIntersect(p, c, r) {
+  const { x: h, y: k } = c
+  let verticalIntersections = [];
+  const verticalY1 = k + Math.sqrt(r * r - (p.x - h) * (p.x - h));
+  const verticalY2 = k - Math.sqrt(r * r - (p.x - h) * (p.x - h));
+  verticalIntersections.push({ x: p.x, y: verticalY1 });
+  verticalIntersections.push({ x: p.x, y: verticalY2 });
+
+  // Return the results
+  if(distance(p, verticalIntersections[0]) < distance(p, verticalIntersections[1])) {
+    return verticalIntersections[0]
+  }
+  return verticalIntersections[1]
+}
+
+/**
+ * 返回点与圆的水平交点
+ * 
+ * @param p 
+ * @param h 
+ * @param k 
+ * @param r 
+ * @returns 
+ */
+export function circleHorizontalIntersect(p, c, r) {
+  const { x: h, y: k } = c
+  let horizontalIntersections = [];
+  const horizontalX1 = h + Math.sqrt(r * r - (p.y - k) * (p.y - k));
+  const horizontalX2 = h - Math.sqrt(r * r - (p.y - k) * (p.y - k));
+  horizontalIntersections.push({ x: horizontalX1, y: p.y });
+  horizontalIntersections.push({ x: horizontalX2, y: p.y });
+
+  // Return the results
+  if(distance(p, horizontalIntersections[0]) < distance(p, horizontalIntersections[1])) {
+    return horizontalIntersections[0]
+  }
+  return horizontalIntersections[1]
+}
+
+/**
+ * 点是否在椭圆的内部
+ * 
+ * @param p 
+ * @param center 
+ * @param radiusX 
+ * @param radiusY 
+ * @returns 
+ */
+export function isInsideEllipse(p,center,radiusX,radiusY) {
+  const { x, y } = center
+  if (
+    ((p.x - x) * (p.x - x)) / (radiusX * radiusX) +
+      ((p.y - y) * (p.y - y)) / (radiusY * radiusY) <
+    1
+  ) {
+    return true
+  }
+  return false
 }
